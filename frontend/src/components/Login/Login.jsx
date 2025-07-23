@@ -31,11 +31,13 @@ const Login = () => {
         
         // Handle successful login (200 OK)
         const userData = response.data;
+        const role = response.data.role;
         localStorage.setItem("userData", JSON.stringify(userData));
         
-        // Redirect to dashboard after a short delay
-        setTimeout(() => navigate('/dashboard'), 1000); 
-
+        if(role === "Admin") setTimeout(() => navigate('/admindashboard'), 1000); 
+        else if(role === "Manager") setTimeout(() => navigate('/managerdashboard'), 1000); 
+        else if(role === "HR") setTimeout(() => navigate('/hrdashboard'), 1000); 
+        else throw new Error(`No role found for, ${userData.firstName || 'user'}!`)
         return `Welcome back, ${userData.firstName || 'user'}!`;
       },
       error: (error) => {

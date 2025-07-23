@@ -1,4 +1,6 @@
 package com.ems.backend.Models;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.sql.Blob;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -37,6 +41,32 @@ public class Employee {
     private String emailId;
     private String role;
 
+
+    //Onboarding
+    @Lob
+    private Blob aadhaarPan;
+    private String officialEmail;
+    @Temporal(TemporalType.DATE)
+    private Date orientationDate;
+    private boolean laptopAssigned;
+    private boolean payRoll;
+    private boolean knowledgeTransfer;
+    private boolean idReturned;
+    private boolean exitInterview;
+
+
+
+
+
+    @ManyToOne
+    @JoinColumn(name = "manager_id")
+    @JsonBackReference
+    private Employee manager;
+
+    @OneToMany(mappedBy = "manager")
+    @JsonManagedReference
+    private List<Employee> employees;
+
     @Override
     public String toString() {
         return "Employee{" +
@@ -51,15 +81,6 @@ public class Employee {
                 ", salary=" + salary +
                 ", emailId='" + emailId + '\'' +
                 ", role='" + role + '\'' +
-                ", manager=" + manager +
-                ", employees=" + employees +
                 '}';
     }
-
-    @ManyToOne
-    @JoinColumn(name = "manager_id")
-    private Employee manager;
-
-    @OneToMany(mappedBy = "manager")
-    private List<Employee> employees;
 }

@@ -1,0 +1,86 @@
+import { useState } from 'react';
+import { Home, Users, Calendar, Wallet, ClipboardList, FileText, Settings } from 'lucide-react';
+import { Toaster, toast } from 'sonner';
+import adminimg from "../../assets/admin.png";
+import ManageEmployee from './ManageEmployee';
+import OnboardingAndExit from './OnboardingAndExit';
+
+const menuItems = [
+  { name: 'Dashboard', icon: <Home size={18} />, key: 'dashboard' },
+  { name: 'Manage Employees', icon: <Users size={18} />, key: 'employees' },
+  { name: 'Onboarding / Exit', icon: <ClipboardList size={18} />, key: 'onboarding' },
+  { name: 'Manage Leave Types', icon: <Calendar size={18} />, key: 'leaves' },
+  { name: 'Salary Setup', icon: <Wallet size={18} />, key: 'salary' },
+  { name: 'Payroll', icon: <FileText size={18} />, key: 'payroll' },
+  { name: 'Performance Reviews', icon: <ClipboardList size={18} />, key: 'performance' },
+  { name: 'Reports', icon: <FileText size={18} />, key: 'reports' },
+  { name: 'Settings', icon: <Settings size={18} />, key: 'settings' },
+];
+
+
+
+const renderContent = (key) => {
+  switch (key) {
+    case 'dashboard':
+      return <div className="p-4">Welcome to Admin Dashboard 👋</div>;
+    case 'employees':
+      return <ManageEmployee/>;
+    case 'leaves':
+      return <div className="p-4">Leave Types Management</div>;
+    case 'salary':
+      return <div className="p-4">Salary Configuration</div>;
+    case 'payroll':
+      return <div className="p-4">Payroll Overview</div>;
+    case 'performance':
+      return <div className="p-4">Performance Reviews</div>;
+    case 'onboarding':
+      return <OnboardingAndExit/>;
+    case 'reports':
+      return <div className="p-4">Reports and Exports</div>;
+    case 'settings':
+      return <div className="p-4">Settings Page</div>;
+    default:
+      return null;
+  }
+};
+
+export default function HRDashboard() {
+  const [activeKey, setActiveKey] = useState('dashboard');
+
+  const handleMenuClick = (key) => {
+    setActiveKey(key);
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100">
+      <Toaster richColors position="top-right" />
+
+      
+      <aside className="w-64 bg-white shadow-md">
+        <div className="p-5 font-bold text-center text-xl">EMS Admin</div>
+        <nav className="p-2 mt-2 space-y-5">
+          {menuItems.map(({ name, icon, key }) => (
+            <button
+              key={key}
+              onClick={() => handleMenuClick(key)}
+              className={`flex items-center gap-2 w-full text-left p-2 rounded-lg hover:bg-green-100 transition ${activeKey === key ? 'bg-green-200 font-semibold' : ''}`}
+            >
+              {icon}
+              {name}
+            </button>
+          ))}
+        </nav>
+        <button className='w-42 px-4 py-2 rounded-lg text-white font-bold cursor-pointer mx-8 mt-16 bg-red-500 items-center'>Logout</button>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto">
+        <header className="bg-white shadow p-4 flex justify-between items-center">
+          <h1 className="text-xl font-semibold capitalize">{activeKey.replace('-', ' ')}</h1>
+          <div className="text-lg font-bold flex gap-3 text-gray-600"><img src={adminimg} className='w-8 h-8' />ADMIN</div>
+        </header>
+        <section className="p-4 h-[680px]">{renderContent(activeKey)}</section>
+      </main>
+    </div>
+  );
+}

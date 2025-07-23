@@ -3,11 +3,18 @@ package com.ems.backend.Services;
 import com.ems.backend.Models.Employee;
 import com.ems.backend.Repositories.EmployeeRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Random;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
@@ -24,7 +31,7 @@ public class EmployeeServices {
 
     public String addEmployee(Employee user) {
         try {
-
+            System.out.println(user);
             if (user.getEmailId() == null || user.getEmailId().isEmpty()) {
                 return "Email cannot be empty";
             }
@@ -36,6 +43,9 @@ public class EmployeeServices {
             if (user.getPassword() == null || user.getPassword().length() < 6) {
                 return "Password must be at least 6 characters long";
             }
+
+            Employee emp = employeeRepo.findByEmailId(user.getEmailId());
+            if(emp != null) return "Employee with same email id already exist.";
 
             // Encrypt the password
             String encryptedPassword = passwordEncoder.encode(user.getPassword());
@@ -163,6 +173,115 @@ public class EmployeeServices {
                 user.setPassword(passwordEncoder.encode(password));
                 employeeRepo.save(user);
                 return ResponseEntity.status(201).body("Password has been changed successfully");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Internal Server Error");
+        }
+    }
+
+    public ResponseEntity<?> fetchAllUsers() {
+        try{
+            List<Employee> data =  employeeRepo.findAll();
+            return ResponseEntity.ok().body(data);
+        }
+        catch (Exception e)
+        {
+            return ResponseEntity.internalServerError().body("Internal Server Error");
+        }
+    }
+
+    public ResponseEntity<?> deleteEmployee(Long id) {
+        try{
+            Employee user = employeeRepo.findById(id).orElse(null);
+            assert user != null;
+            user.setStatus("Exiting");
+            employeeRepo.save(user);
+            return ResponseEntity.ok().body("Employee data deleted successfully");
+        }
+        catch (Exception e)
+        {
+            return ResponseEntity.internalServerError().body("Internal Server Error");
+        }
+    }
+
+    public String updateEmployee(Employee user) {
+        try {
+
+            if (user.getEmailId() == null || user.getEmailId().isEmpty()) {
+                return "Email cannot be empty";
+            }
+
+            if (!isValidEmail(user.getEmailId())) {
+                return "Invalid email format";
+            }
+
+            employeeRepo.save(user);
+            return "Employee updated successfully";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error while updating employee: " + e.getMessage();
+        }
+    }
+
+    private Object convertToProperType(Class<?> type, String value) {
+        if (type == String.class) {
+            return value;
+        } else if (type == int.class || type == Integer.class) {
+            return Integer.parseInt(value);
+        } else if (type == long.class || type == Long.class) {
+            return Long.parseLong(value);
+        } else if (type == boolean.class || type == Boolean.class) {
+            return Boolean.parseBoolean(value);
+        } else if (type == BigDecimal.class) {
+            return new BigDecimal(value);
+        } else if (type == Date.class) {
+            try {
+                return new SimpleDateFormat("yyyy-MM-dd").parse(value); // match format of dateOfJoining
+            } catch (ParseException e) {
+                throw new RuntimeException("Invalid date format. Use yyyy-MM-dd");
+            }
+        }
+        throw new RuntimeException("Unsupported field type: " + type.getName());
+    }
+
+
+    public ResponseEntity<?> updateField(String emailId, String fieldName, String value) {
+        try {
+            Employee user = employeeRepo.findByEmailId(emailId);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee not found");
+            }
+
+            Field field = Employee.class.getDeclaredField(fieldName);
+            field.setAccessible(true); // Allows access to private fields
+
+            // Type conversion
+            Object convertedValue = convertToProperType(field.getType(), value);
+
+            field.set(user, convertedValue);
+
+            employeeRepo.save(user);
+            return ResponseEntity.ok(user);
+        } catch (NoSuchFieldException e) {
+            return ResponseEntity.badRequest().body("Invalid field name: " + fieldName);
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.internalServerError().body("Unable to access field: " + fieldName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Internal Server Error");
+        }
+    }
+
+    public ResponseEntity<?> updateStatus(String emailId, String status) {
+        try{
+            Employee user = employeeRepo.findByEmailId(emailId);
+            if(user  == null) return ResponseEntity.notFound().build();
+            else
+            {
+                user.setStatus(passwordEncoder.encode(status));
+                employeeRepo.save(user);
+                return ResponseEntity.status(201).body("Status has been updated successfully");
             }
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Internal Server Error");
