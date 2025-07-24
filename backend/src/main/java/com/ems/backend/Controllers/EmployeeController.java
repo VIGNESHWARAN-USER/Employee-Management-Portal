@@ -6,10 +6,8 @@ import com.ems.backend.Repositories.EmployeeRepo;
 import com.ems.backend.Services.EmployeeServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -116,4 +114,12 @@ public class EmployeeController {
         System.out.println(emailId+" "+status);
         return employeeServices.updateStatus(emailId, status);
     }
+
+    @RequestMapping("/uploadDocument")
+    public ResponseEntity<?> uploadDocument(@RequestParam("file") MultipartFile file, @RequestParam("id") String emailId)
+    {
+        System.out.println(emailId);
+        return employeeServices.uploadDocument(emailId, file);
+    }
+
 }

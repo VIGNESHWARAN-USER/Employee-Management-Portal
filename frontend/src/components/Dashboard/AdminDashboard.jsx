@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Home, Users, Calendar, Wallet, ClipboardList, FileText, Settings } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import adminimg from "../../assets/admin.png";
-import ManageEmployee from './ManageEmployee';
-import OnboardingAndExit from './OnboardingAndExit';
+import ManageEmployee from '../EmployeeManagement/ManageEmployee';
+import OnboardingAndExit from '../EmployeeManagement/OnboardingAndExit';
+import SalaryPayroll from '../Salary/SalaryPayroll';
+import SalarySetup from '../Salary/SalarySetup';
 
 const menuItems = [
   { name: 'Dashboard', icon: <Home size={18} />, key: 'dashboard' },
@@ -17,7 +19,7 @@ const menuItems = [
   { name: 'Settings', icon: <Settings size={18} />, key: 'settings' },
 ];
 
-const renderContent = (key) => {
+const renderContent = (key, onNavigate) => {
   switch (key) {
     case 'dashboard':
       return <div className="p-4">Welcome to Admin Dashboard 👋</div>;
@@ -26,13 +28,13 @@ const renderContent = (key) => {
     case 'leaves':
       return <div className="p-4">Leave Types Management</div>;
     case 'salary':
-      return <div className="p-4">Salary Configuration</div>;
+      return <SalarySetup/>;
     case 'payroll':
-      return <div className="p-4">Payroll Overview</div>;
+      return <SalaryPayroll/>;
     case 'performance':
       return <div className="p-4">Performance Reviews</div>;
     case 'onboarding':
-      return <OnboardingAndExit/>;
+      return <OnboardingAndExit onNavigate = {onNavigate}/>;
     case 'reports':
       return <div className="p-4">Reports and Exports</div>;
     case 'settings':
@@ -79,7 +81,7 @@ export default function AdminDashboard() {
           <h1 className="text-xl font-semibold capitalize">{activeKey.replace('-', ' ')}</h1>
           <div className="text-lg font-bold flex gap-3 text-gray-600"><img src={adminimg} className='w-8 h-8' />ADMIN</div>
         </header>
-        <section className="p-4 h-[680px]">{renderContent(activeKey)}</section>
+        <section className="p-4 h-[680px]">{renderContent(activeKey, handleMenuClick)}</section>
       </main>
     </div>
   );

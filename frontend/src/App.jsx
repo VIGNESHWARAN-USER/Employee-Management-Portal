@@ -17,7 +17,7 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/dashboard" element={<AdminDashboard/>}/>
+      <Route path="/admindashboard" element={<AdminDashboard/>}/>
       <Route path="/hrdashboard" element={<HRDashboard/>}/>
       <Route path="/managerdashboard" element={<ManagerDashboard/>}/>
     </Routes>

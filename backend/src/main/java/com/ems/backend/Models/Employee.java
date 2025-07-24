@@ -42,21 +42,23 @@ public class Employee {
     private String role;
 
 
+
     //Onboarding
     @Lob
-    private Blob aadhaarPan;
+    private byte[] aadhaarPan;
     private String officialEmail;
     @Temporal(TemporalType.DATE)
     private Date orientationDate;
     private boolean laptopAssigned;
-    private boolean payRoll;
     private boolean knowledgeTransfer;
     private boolean idReturned;
     private boolean exitInterview;
+    private boolean payRoll;
 
 
-
-
+    @OneToOne(mappedBy = "employee")
+    @JsonBackReference
+    private Salaries salaryStruct;
 
     @ManyToOne
     @JoinColumn(name = "manager_id")

@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -254,11 +256,17 @@ public class EmployeeServices {
             }
 
             Field field = Employee.class.getDeclaredField(fieldName);
-            field.setAccessible(true); // Allows access to private fields
+            field.setAccessible(true);
 
-            // Type conversion
+
+            if ("officialEmail".equalsIgnoreCase(fieldName)) {
+                Object existingValue = field.get(user);
+                if (existingValue != null && !existingValue.toString().isBlank()) {
+                    return ResponseEntity.badRequest().body("Official email is already set and cannot be updated.");
+                }
+            }
+
             Object convertedValue = convertToProperType(field.getType(), value);
-
             field.set(user, convertedValue);
 
             employeeRepo.save(user);
@@ -273,15 +281,31 @@ public class EmployeeServices {
         }
     }
 
+
     public ResponseEntity<?> updateStatus(String emailId, String status) {
         try{
             Employee user = employeeRepo.findByEmailId(emailId);
             if(user  == null) return ResponseEntity.notFound().build();
             else
             {
-                user.setStatus(passwordEncoder.encode(status));
+                user.setStatus(status);
                 employeeRepo.save(user);
                 return ResponseEntity.status(201).body("Status has been updated successfully");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Internal Server Error");
+        }
+    }
+
+    public ResponseEntity<?> uploadDocument(String emailId, MultipartFile file) {
+        try{
+            Employee user = employeeRepo.findByEmailId(emailId);
+            if(user  == null) return ResponseEntity.notFound().build();
+            else
+            {
+                user.setAadhaarPan(file.getBytes());
+                employeeRepo.save(user);
+                return ResponseEntity.ok().body(user);
             }
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Internal Server Error");

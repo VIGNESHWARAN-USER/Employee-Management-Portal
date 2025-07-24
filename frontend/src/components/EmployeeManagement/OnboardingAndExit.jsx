@@ -21,18 +21,22 @@ const INTERACTIVE_EXITING_CHECKLIST = [
 ];
 
 const isTaskCompleted = (employee, dataField) => {
-    const value = employee?.[dataField];
+    var value = employee?.[dataField];
+    if(dataField == "payRoll" && employee.status == "Exiting") 
+    {
+        value = !!value
+    }
     if (typeof value === 'boolean') {
         return value === true;
     }
     return !!value;
 };
 
-const InteractiveTaskItem = ({ task, employee, onUpdate, onFileUpload }) => {
+const InteractiveTaskItem = ({ task, employee, onUpdate, onFileUpload, onNavigate }) => {
     const isCompleted = isTaskCompleted(employee, task.dataField);
     const [editMode, setEditMode] = useState(false);
     const [value, setValue] = useState(employee[task.dataField] || '');
-
+    console.log(employee)
     useEffect(() => {
         setValue(employee[task.dataField] || '');
     }, [employee, task.dataField]);
@@ -81,10 +85,11 @@ const InteractiveTaskItem = ({ task, employee, onUpdate, onFileUpload }) => {
                 );
             case 'toggle':
                 return (
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    (((task.dataField == "payRoll" && employee.payRoll == false) && <button onClick={()=>onNavigate("salary")} className='bg-blue-600 text-white rounded-lg px-2 py-2 cursor-pointer'>Go to Payroll</button>)
+                    || <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" checked={isCompleted} onChange={() => onUpdate(task.dataField, !isCompleted)} className="sr-only peer" />
                         <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
+                    </label>) 
                 );
             default:
                 return null;
@@ -106,7 +111,7 @@ const InteractiveTaskItem = ({ task, employee, onUpdate, onFileUpload }) => {
 };
 
 
-const OnboardingAndExit = () => {
+const OnboardingAndExit = ({onNavigate}) => {
     // --- State Management ---
     const [view, setView] = useState('list');
     const [activeList, setActiveList] = useState('onboarding');
@@ -170,6 +175,7 @@ const OnboardingAndExit = () => {
 
     const handleTaskUpdate = (fieldName, fieldValue) => {
         const payload = { emailId:selectedEmployee.emailId, name: fieldName, value: fieldValue };
+        console.log(payload)
         const promise = axios.post(`http://localhost:8080/api/update-field`, payload)
             .then(response => {
                 // The backend must return the updated employee object.
@@ -187,8 +193,9 @@ const OnboardingAndExit = () => {
         if (!file) return;
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('id', selectedEmployee.emailId);
         
-        const promise = axios.post(`http://localhost:8080/api/user/${selectedEmployee.id}/upload-document?fieldName=${fieldName}`, formData, {
+        const promise = axios.post(`http://localhost:8080/api/uploadDocument`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         }).then(response => {
             updateLocalEmployeeState(response.data);
@@ -272,6 +279,7 @@ const OnboardingAndExit = () => {
                             employee={selectedEmployee}
                             onUpdate={handleTaskUpdate}
                             onFileUpload={handleFileUpload}
+                            onNavigate={onNavigate}
                         />
                     ))}
                 </ul>
