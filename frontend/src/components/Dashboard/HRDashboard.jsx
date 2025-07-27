@@ -9,14 +9,10 @@ import SalarySetup from '../Salary/SalarySetup';
 
 const menuItems = [
   { name: 'Dashboard', icon: <Home size={18} />, key: 'dashboard' },
-  { name: 'Manage Employees', icon: <Users size={18} />, key: 'employees' },
   { name: 'Onboarding / Exit', icon: <ClipboardList size={18} />, key: 'onboarding' },
-  { name: 'Manage Leave Types', icon: <Calendar size={18} />, key: 'leaves' },
   { name: 'Salary Setup', icon: <Wallet size={18} />, key: 'salary' },
-  { name: 'Payroll', icon: <FileText size={18} />, key: 'payroll' },
   { name: 'Performance Reviews', icon: <ClipboardList size={18} />, key: 'performance' },
-  { name: 'Reports', icon: <FileText size={18} />, key: 'reports' },
-  { name: 'Settings', icon: <Settings size={18} />, key: 'settings' },
+  { name: 'Manage Leave Requests', icon: <Calendar size={18} />, key: 'leaves' },
 ];
 
 
@@ -28,7 +24,7 @@ const renderContent = (key, onNavigate) => {
     case 'employees':
       return <ManageEmployee/>;
     case 'leaves':
-      return <div className="p-4">Leave Types Management</div>;
+      return <ManagerLeaveApprovalPage/>;
     case 'salary':
       return <SalarySetup/>;
     case 'payroll':
@@ -37,10 +33,6 @@ const renderContent = (key, onNavigate) => {
       return <div className="p-4">Performance Reviews</div>;
     case 'onboarding':
       return <OnboardingAndExit onNavigate = {onNavigate}/>;
-    case 'reports':
-      return <div className="p-4">Reports and Exports</div>;
-    case 'settings':
-      return <div className="p-4">Settings Page</div>;
     default:
       return null;
   }
@@ -72,7 +64,7 @@ export default function HRDashboard() {
             </button>
           ))}
         </nav>
-        <button className='w-42 px-4 py-2 rounded-lg text-white font-bold cursor-pointer mx-8 mt-16 bg-red-500 items-center'>Logout</button>
+        <button className='w-42 px-4 py-2 rounded-lg text-white font-bold cursor-pointer mx-8 absolute bottom-10 bg-red-500 items-center'>Logout</button>
       </aside>
 
       {/* Main Content */}

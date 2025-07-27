@@ -1,15 +1,11 @@
 package com.ems.backend.Models;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
-import java.sql.Blob;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -41,32 +37,37 @@ public class Employee {
     private String emailId;
     private String role;
 
-
-
-    //Onboarding
+    // Onboarding
     @Lob
     private byte[] aadhaarPan;
+
+    @Lob
+    private byte[] profilePic;
+
     private String officialEmail;
+
     @Temporal(TemporalType.DATE)
     private Date orientationDate;
+
     private boolean laptopAssigned;
     private boolean knowledgeTransfer;
     private boolean idReturned;
     private boolean exitInterview;
     private boolean payRoll;
 
-
+    // Relationship with Salaries
     @OneToOne(mappedBy = "employee")
-    @JsonBackReference
+    @JsonBackReference(value = "salary_struct-ref")
     private Salaries salaryStruct;
 
+    // Self-referencing Manager Relationship
     @ManyToOne
     @JoinColumn(name = "manager_id")
-    @JsonBackReference
+    @JsonBackReference(value = "manager-ref")
     private Employee manager;
 
     @OneToMany(mappedBy = "manager")
-    @JsonManagedReference
+    @JsonManagedReference(value = "manager-ref")
     private List<Employee> employees;
 
     @Override

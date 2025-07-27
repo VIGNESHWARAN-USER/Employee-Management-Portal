@@ -88,6 +88,14 @@ public class EmployeeController {
         return employeeServices.fetchAllUsers();
     }
 
+    @RequestMapping("/fetchUser")
+    public ResponseEntity<?> fetchUser(@RequestBody Map<String, String> data)
+    {
+        String emailId  = data.get("emailId");
+        System.out.println(emailId);
+        return employeeServices.fetchUser(emailId);
+    }
+
     @RequestMapping("/deleteEmployee")
     public ResponseEntity<?> deleteEmployee(@RequestBody Map<String, Long> id)
     {
@@ -122,4 +130,21 @@ public class EmployeeController {
         return employeeServices.uploadDocument(emailId, file);
     }
 
+    @RequestMapping("/getProfilePic/{id}")
+    public ResponseEntity<?> getProfilePic(@PathVariable Long id)
+    {
+        return employeeServices.getProfilePic(id);
+    }
+
+    @RequestMapping("/getAadhaarPan/{id}")
+    public ResponseEntity<?> getAadhaarPan(@PathVariable Long id)
+    {
+        return employeeServices.getAadharPan(id);
+    }
+
+    @RequestMapping("/setProfilePic/{id}")
+    public ResponseEntity<?> setProfilePic(@PathVariable Long id, @RequestBody MultipartFile file)
+    {
+        return employeeServices.setProfilePic(id, file);
+    }
 }

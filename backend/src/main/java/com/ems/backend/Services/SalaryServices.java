@@ -3,8 +3,10 @@ package com.ems.backend.Services;
 
 import com.ems.backend.DTO.EmployeeDTO;
 import com.ems.backend.Models.Employee;
+import com.ems.backend.Models.Payslip;
 import com.ems.backend.Models.Salaries;
 import com.ems.backend.Repositories.EmployeeRepo;
+import com.ems.backend.Repositories.PaySlipRepo;
 import com.ems.backend.Repositories.SalaryRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,8 @@ public class SalaryServices {
     SalaryRepo salaryRepo;
     @Autowired
     EmployeeRepo employeeRepo;
+    @Autowired
+    PaySlipRepo paySlipRepo;
 
     public ResponseEntity<?> submitStructure(Salaries data) {
         try{
@@ -33,6 +37,7 @@ public class SalaryServices {
                 salary.setHra(data.getHra());
                 salary.setBasic(data.getBasic());
                 salary.setProfessionalTax(data.getProfessionalTax());
+                salary.setProvidentFund(data.getProvidentFund());
                 salary.setSpecialAllowance(data.getSpecialAllowance());
                 salary.setGrossEarnings(data.getGrossEarnings());
                 salaryRepo.save(salary);
@@ -49,6 +54,28 @@ public class SalaryServices {
     public ResponseEntity<?> fetchAllSalaryStructures() {
         try{
             List<Salaries> data = salaryRepo.findAll();
+            return ResponseEntity.ok().body(data);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.internalServerError().body("Internal Server Error");
+        }
+    }
+
+    public ResponseEntity<?> storePaySlips(List<Payslip> data) {
+        try{
+            for(Payslip entity: data){
+                paySlipRepo.save(entity);
+            }
+            return ResponseEntity.ok().body(paySlipRepo.findAll());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.internalServerError().body("Internal Server Error");
+        }
+    }
+
+    public ResponseEntity<?> fetchAllPayslips() {
+        try{
+            List<Payslip> data = paySlipRepo.findAll();
             return ResponseEntity.ok().body(data);
         } catch (Exception e) {
             System.out.println(e.getMessage());

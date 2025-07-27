@@ -7,6 +7,7 @@ import ResetPassword from './components/Login/ResetPassword';
 import AdminDashboard from './components/Dashboard/AdminDashboard';
 import HRDashboard from './components/Dashboard/HRDashboard';
 import ManagerDashboard from './components/Dashboard/ManagerDashboard';
+import EmployeeDashboard from './components/Dashboard/EmployeeDashboard';
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
       <Route path="/admindashboard" element={<AdminDashboard/>}/>
       <Route path="/hrdashboard" element={<HRDashboard/>}/>
       <Route path="/managerdashboard" element={<ManagerDashboard/>}/>
+      <Route path="/employeedashboard" element={<EmployeeDashboard/>}/>
     </Routes>
   );
 }

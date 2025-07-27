@@ -37,6 +37,7 @@ const Login = () => {
         if(role === "Admin") setTimeout(() => navigate('/admindashboard'), 1000); 
         else if(role === "Manager") setTimeout(() => navigate('/managerdashboard'), 1000); 
         else if(role === "HR") setTimeout(() => navigate('/hrdashboard'), 1000); 
+        else if(role === "Employee") setTimeout(() => navigate('/employeedashboard'), 1000); 
         else throw new Error(`No role found for, ${userData.firstName || 'user'}!`)
         return `Welcome back, ${userData.firstName || 'user'}!`;
       },

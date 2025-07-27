@@ -19,7 +19,7 @@ public class Salaries {
 
     @OneToOne
     @JoinColumn(referencedColumnName = "id")
-    @JsonManagedReference
+    @JsonManagedReference(value = "salary_struct-ref") // Matching the Employee's @JsonBackReference
     private Employee employee;
 
     private Double basic;
@@ -28,6 +28,7 @@ public class Salaries {
     private Double grossEarnings;
     private Double professionalTax;
     private Double netSalary;
+    private Double providentFund;
 
     @Override
     public String toString() {
@@ -40,6 +41,7 @@ public class Salaries {
                 ", grossEarnings=" + grossEarnings +
                 ", professionalTax=" + professionalTax +
                 ", netSalary=" + netSalary +
+                ", providentFund=" + providentFund +
                 '}';
     }
 }

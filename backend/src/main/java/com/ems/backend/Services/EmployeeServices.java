@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -46,7 +47,7 @@ public class EmployeeServices {
                 return "Password must be at least 6 characters long";
             }
 
-            Employee emp = employeeRepo.findByEmailId(user.getEmailId());
+            Employee emp = employeeRepo.findByOfficialEmail(user.getEmailId());
             if(emp != null) return "Employee with same email id already exist.";
 
             // Encrypt the password
@@ -71,7 +72,7 @@ public class EmployeeServices {
     public ResponseEntity<?> login(String email, String password)
     {
         try{
-            Employee user = employeeRepo.findByEmailId(email);
+            Employee user = employeeRepo.findByOfficialEmail(email);
             if(user  == null) return ResponseEntity.notFound().build();
             else if(passwordEncoder.matches(password,user.getPassword())) return ResponseEntity.ok(user);
             else return ResponseEntity.status(201).body("Invalid Password");
@@ -82,7 +83,7 @@ public class EmployeeServices {
 
     public ResponseEntity<?> forgotPassword(String email) {
         try{
-            Employee user = employeeRepo.findByEmailId(email);
+            Employee user = employeeRepo.findByOfficialEmail(email);
             if(user  == null) return ResponseEntity.notFound().build();
             int otp = (int) (Math.random() * 10000);
             String htmlContent = "<!DOCTYPE html>\n" +
@@ -167,7 +168,7 @@ public class EmployeeServices {
 
     public ResponseEntity<?> resetPassword(String email, String password) {
         try{
-            Employee user = employeeRepo.findByEmailId(email);
+            Employee user = employeeRepo.findByOfficialEmail(email);
             System.out.println(password);
             if(user  == null) return ResponseEntity.notFound().build();
             else
@@ -254,15 +255,15 @@ public class EmployeeServices {
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee not found");
             }
-
+            System.out.println(fieldName+" "+user);
             Field field = Employee.class.getDeclaredField(fieldName);
             field.setAccessible(true);
 
 
             if ("officialEmail".equalsIgnoreCase(fieldName)) {
-                Object existingValue = field.get(user);
-                if (existingValue != null && !existingValue.toString().isBlank()) {
-                    return ResponseEntity.badRequest().body("Official email is already set and cannot be updated.");
+                Employee data = employeeRepo.findByOfficialEmail(value);
+                if (data != null) {
+                    return ResponseEntity.badRequest().body("This Official email is already set to another employee.");
                 }
             }
 
@@ -311,4 +312,52 @@ public class EmployeeServices {
             return ResponseEntity.internalServerError().body("Internal Server Error");
         }
     }
+
+    public ResponseEntity<?> fetchUser(String emailId) {
+        try {
+            return ResponseEntity.ok().body(employeeRepo.findByOfficialEmail(emailId));
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.internalServerError().body("Internal Server Error");
+        }
+    }
+
+    public ResponseEntity<?> getProfilePic(Long id) {
+        try{
+            Employee data = employeeRepo.findById(id).orElse(null);
+            assert data != null;
+            return ResponseEntity.ok().body(data.getProfilePic());
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.internalServerError().body("Internal Server erorr");
+        }
+    }
+
+    public ResponseEntity<?> getAadharPan(Long id) {
+        try{
+            Employee data = employeeRepo.findById(id).orElse(null);
+            assert data != null;
+            return ResponseEntity.ok().body(data.getAadhaarPan());
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.internalServerError().body("Internal Server erorr");
+        }
+    }
+
+    public ResponseEntity<?> setProfilePic(Long id, MultipartFile file) {
+        try{
+            Employee data = employeeRepo.findById(id).orElse(null);
+            assert data != null;
+            data.setProfilePic(file.getBytes());
+            employeeRepo.save(data);
+            return ResponseEntity.ok().body(data.getProfilePic());
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.internalServerError().body("Internal Server Error");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }

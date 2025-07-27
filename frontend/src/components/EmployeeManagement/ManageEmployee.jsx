@@ -80,7 +80,7 @@ const ManageEmployee = () => {
         });
     };
 
-    useEffect(() => {
+    useEffect(() => { 
         fetchDetails();
     }, []);
 

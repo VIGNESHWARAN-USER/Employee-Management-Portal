@@ -18,7 +18,7 @@ public class EmployeeDTO {
     private String emailId;
     private String role;
     private Long manager;
-    private Blob aadhaarPan;
+    private byte[] aadhaarPan;
     private Long salaryStructId;
     private String officialEmail;
     private Date orientationDate;

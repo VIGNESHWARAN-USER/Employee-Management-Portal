@@ -6,7 +6,7 @@ import lombok.*;
 
 @Data
 public class SalaryDTO {
-
+    private Double providentFund;
     private Long id;
     private Long employee;
     private Double basic;
