@@ -2,7 +2,6 @@ package com.ems.backend.DTO;
 
 import lombok.Data;
 import java.math.BigDecimal;
-import java.sql.Blob;
 import java.util.Date;
 
 @Data

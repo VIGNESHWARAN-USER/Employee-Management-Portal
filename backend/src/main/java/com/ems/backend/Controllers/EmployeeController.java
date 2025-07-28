@@ -29,26 +29,45 @@ public class EmployeeController {
     }
 
     @RequestMapping("/addEmployee")
-    public String addUser(@RequestBody EmployeeDTO dto)
-    {
+    public String addUser(@RequestBody EmployeeDTO dto) {
+        System.out.println(dto);
         Employee employee = new Employee();
+
         employee.setFirstName(dto.getFirstName());
         employee.setLastName(dto.getLastName());
         employee.setMobileNumber(dto.getMobileNumber());
         employee.setAlternateMobileNumber(dto.getAlternateMobileNumber());
         employee.setStatus(dto.getStatus());
-        employee.setPassword(dto.getPassword());
+        employee.setPassword(dto.getPassword()); // Consider encoding this!
         employee.setDateOfJoining(dto.getDateOfJoining());
         employee.setSalary(dto.getSalary());
         employee.setEmailId(dto.getEmailId());
         employee.setRole(dto.getRole());
+        employee.setAadhaarPan(dto.getAadhaarPan());
 
+        // Optional fields from DTO
+        employee.setOfficialEmail(dto.getOfficialEmail());
+        employee.setOrientationDate(dto.getOrientationDate());
+        employee.setLaptopAssigned(dto.isLaptopAssigned());
+        employee.setKnowledgeTransfer(dto.isKnowledgeTransfer());
+        employee.setIdReturned(dto.isIdReturned());
+        employee.setExitInterview(dto.isExitInterview());
+
+        // Payroll flag can be handled separately based on business logic, assuming default false
+        employee.setPayRoll(false);
+
+        // Profile pic could be set later if passed as multipart/form-data
+        employee.setProfilePic(null);
+
+        // Set Manager (self-referencing relationship)
         if (dto.getManager() != null) {
             Employee manager = employeeRepo.findById(dto.getManager()).orElse(null);
             employee.setManager(manager);
         }
+
         return employeeServices.addEmployee(employee);
     }
+
 
     @RequestMapping("/updateEmployee")
     public String updateEmployee(@RequestBody Employee user)
@@ -146,5 +165,11 @@ public class EmployeeController {
     public ResponseEntity<?> setProfilePic(@PathVariable Long id, @RequestBody MultipartFile file)
     {
         return employeeServices.setProfilePic(id, file);
+    }
+
+    @RequestMapping("/employees/manager/{managerId}")
+    public ResponseEntity<?> getManagerEmployees(@PathVariable Long managerId)
+    {
+        return employeeServices.fetManagerEmployees(managerId);
     }
 }

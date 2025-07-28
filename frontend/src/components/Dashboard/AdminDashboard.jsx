@@ -1,14 +1,20 @@
 import { useState } from 'react';
-import { Home, Users, Calendar, Wallet, ClipboardList, FileText, Settings } from 'lucide-react';
+import { Home, Users, Calendar, Wallet, ClipboardList, FileText, Settings, User } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import adminimg from "../../assets/admin.png";
 import ManageEmployee from '../EmployeeManagement/ManageEmployee';
 import OnboardingAndExit from '../EmployeeManagement/OnboardingAndExit';
 import SalaryPayroll from '../Salary/SalaryPayroll';
 import SalarySetup from '../Salary/SalarySetup';
+import ManagerLeaveApprovalPage from '../LeaveManagement/ManagerLeaveApprovalPage';
+import ManagerReviewPage from '../PerfomanceReview/ManagerReviewPage';
+import AdminReviewDashboard from '../PerfomanceReview/AdminReviewDashboard';
+import InitiateReviewCycle from '../PerfomanceReview/InitiateReviewCycle';
+import EmployeeProfile from '../Employee/EmployeeProfile';
 
 const menuItems = [
   { name: 'Dashboard', icon: <Home size={18} />, key: 'dashboard' },
+  { name: 'Profile', icon: <User size={18} />, key: 'profile' },
   { name: 'Manage Employees', icon: <Users size={18} />, key: 'employees' },
   { name: 'Onboarding / Exit', icon: <ClipboardList size={18} />, key: 'onboarding' },
   { name: 'Salary Setup', icon: <Wallet size={18} />, key: 'salary' },
@@ -21,6 +27,8 @@ const renderContent = (key, onNavigate) => {
   switch (key) {
     case 'dashboard':
       return <div className="p-4">Welcome to Admin Dashboard 👋</div>;
+      case 'profile':
+      return <EmployeeProfile/>;
     case 'employees':
       return <ManageEmployee/>;
     case 'leaves':
@@ -30,7 +38,7 @@ const renderContent = (key, onNavigate) => {
     case 'payroll':
       return <SalaryPayroll/>;
     case 'performance':
-      return <div className="p-4">Performance Reviews</div>;
+      return <InitiateReviewCycle/>;
     case 'onboarding':
       return <OnboardingAndExit onNavigate = {onNavigate}/>;
     default:
@@ -40,7 +48,7 @@ const renderContent = (key, onNavigate) => {
 
 export default function AdminDashboard() {
   const [activeKey, setActiveKey] = useState('dashboard');
-
+  const name = JSON.parse(localStorage.getItem("userData"))?.firstName+" "+JSON.parse(localStorage.getItem("userData"))?.lastName;
   const handleMenuClick = (key) => {
     setActiveKey(key);
   };
@@ -73,7 +81,7 @@ export default function AdminDashboard() {
       <main className="flex-1 overflow-y-auto">
         <header className="bg-white shadow p-4 flex justify-between items-center">
           <h1 className="text-xl font-semibold capitalize">{activeKey.replace('-', ' ')}</h1>
-          <div className="text-lg font-bold flex gap-3 text-gray-600"><img src={adminimg} className='w-8 h-8' />ADMIN</div>
+          <div className="text-lg font-bold flex gap-3 text-gray-600"><img src={adminimg} className='w-8 h-8' />{name}</div>
         </header>
         <section className="p-4 h-[680px]">{renderContent(activeKey, handleMenuClick)}</section>
       </main>

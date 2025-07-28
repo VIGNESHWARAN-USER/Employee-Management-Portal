@@ -15,7 +15,7 @@ const PayslipDetailView = ({ payslip }) => {
         <div className="p-2 sm:p-4 border rounded-lg bg-slate-50">
             {/* Header */}
             <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-slate-800">Your Company Name</h2>
+                <h2 className="text-2xl font-bold text-slate-800">XYZ Pvt. Ltd.</h2>
                 <p className="text-slate-500">Pay Statement for {payslip.payPeriod}</p>
             </div>
 
@@ -68,9 +68,6 @@ const PayslipDetailView = ({ payslip }) => {
             {/* Action Footer for the Modal */}
             <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
                 <button className="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 transition-colors">Close</button>
-                <button className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors flex items-center gap-2">
-                    <Download size={16} /> Download
-                </button>
             </div>
         </div>
     );

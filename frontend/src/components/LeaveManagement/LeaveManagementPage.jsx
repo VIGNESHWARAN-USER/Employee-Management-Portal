@@ -1,5 +1,3 @@
-// src/pages/LeaveManagementPage.js
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CustomModal from '../Employee/CustomModal'; // Ensure this path is correct
@@ -28,7 +26,7 @@ const StatusBadge = ({ status }) => {
         PENDING: 'bg-yellow-100 text-yellow-800 ring-yellow-600/20',
         APPROVED: 'bg-green-100 text-green-800 ring-green-600/20',
         REJECTED: 'bg-red-100 text-red-800 ring-red-600/20',
-        CANCELLED: 'bg-gray-100 text-gray-800 ring-gray-600/20', // Added for completeness
+        CANCELLED: 'bg-gray-100 text-gray-800 ring-gray-600/20',
     };
     const icons = {
         PENDING: <CircleHelp size={16} />,
@@ -44,38 +42,93 @@ const StatusBadge = ({ status }) => {
     );
 };
 
+
 // --- Main Leave Management Component ---
 const LeaveManagementPage = () => {
     // State for UI data
     const [leaveBalances, setLeaveBalances] = useState({
-        casual: { total: 12, taken: 4, remaining: 8 },
-        sick: { total: 10, taken: 2, remaining: 8 },
-        earned: { total: 18, taken: 10, remaining: 8 },
+        casual: { total: 12, taken: 0, remaining: 12 },
+        sick: { total: 10, taken: 0, remaining: 10 },
+        earned: { total: 18, taken: 0, remaining: 18 },
     });
-    const [leaveHistory, setLeaveHistory] = useState([
-        { id: 1, leaveType: 'EARNED', startDate: '2024-06-10', endDate: '2024-06-12', reason: 'Family vacation', status: 'APPROVED' },
-        { id: 2, leaveType: 'SICK', startDate: '2024-07-15', endDate: '2024-07-15', reason: 'Fever', status: 'APPROVED' },
-        { id: 3, leaveType: 'CASUAL', startDate: '2024-07-22', endDate: '2024-07-22', reason: 'Personal work', status: 'REJECTED' },
-        { id: 4, leaveType: 'EARNED', startDate: '2024-08-01', endDate: '2024-08-05', reason: 'Trip to the mountains', status: 'PENDING' },
-    ]);
+    const [leaveHistory, setLeaveHistory] = useState([]); // Start with an empty array
     
     // State for the modal and form inputs
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [leaveType, setLeaveType] = useState('CASUAL'); // Default to CASUAL
+    const [leaveType, setLeaveType] = useState('CASUAL');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [reason, setReason] = useState('');
     const [attachment, setAttachment] = useState(null);
     const [formError, setFormError] = useState('');
 
-    // --- TODO: Fetch real data from backend ---
+
+    // --- CORRECTED: Fetch real data and calculate balances from backend ---
     useEffect(() => {
-        // Here you would fetch leave balances and history for the logged-in employee
-        // For example:
-        const employeeId = JSON.parse(localStorage.getItem("userData"))?.id;
-        //axios.get(`/api/leaves/balances/${employeeId}`).then(res => setLeaveBalances(res.data));
-        axios.get(`http://localhost:8080/api/leaves/history/${employeeId}`).then(res => {console.log(res.data);setLeaveHistory(res.data)});
-    }, []);
+        // Helper function to calculate the number of days between two dates (inclusive)
+        const getDaysBetween = (startDate, endDate) => {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            if (isNaN(start) || isNaN(end)) return 0; // Invalid date check
+            // Add 1 to make the end date inclusive
+            const timeDiff = end.getTime() - start.getTime();
+            return Math.round(timeDiff / (1000 * 3600 * 24)) + 1;
+        };
+
+        const fetchLeaveData = async () => {
+            try {
+                const userData = localStorage.getItem("userData");
+                if (!userData) {
+                    console.error("User data not found in localStorage.");
+                    return;
+                }
+                const employeeId = JSON.parse(userData)?.id;
+                if (!employeeId) {
+                    console.error("Employee ID not found.");
+                    return;
+                }
+
+                const response = await axios.get(`http://localhost:8080/api/leaves/history/${employeeId}`);
+                const history = response.data;
+                setLeaveHistory(history);
+
+                // --- Correctly Calculate and Update Balances ---
+                // 1. Start with a fresh balance object based on totals
+                const newBalances = {
+                    casual: { total: 12, taken: 0, remaining: 12 },
+                    sick: { total: 10, taken: 0, remaining: 10 },
+                    earned: { total: 18, taken: 0, remaining: 18 },
+                };
+
+                // 2. Iterate over APPROVED leaves to calculate total days taken
+                history.forEach(leave => {
+                    if (leave.status === 'APPROVED') {
+                        const daysTaken = getDaysBetween(leave.startDate, leave.endDate);
+                        const typeKey = leave.leaveType.toLowerCase();
+                        
+                        if (newBalances[typeKey]) {
+                            newBalances[typeKey].taken += daysTaken;
+                        }
+                    }
+                });
+
+                // 3. Calculate the remaining days for each leave type
+                for (const key in newBalances) {
+                    newBalances[key].remaining = newBalances[key].total - newBalances[key].taken;
+                }
+                
+                // 4. Update the state once with the newly calculated object
+                setLeaveBalances(newBalances);
+
+            } catch (error) {
+                console.error("Failed to fetch leave data:", error);
+                // Optionally set an error state to show in the UI
+            }
+        };
+
+        fetchLeaveData();
+    }, []); // The empty dependency array ensures this runs only once on mount
+
 
     const resetForm = () => {
         setLeaveType('CASUAL');
@@ -91,18 +144,22 @@ const LeaveManagementPage = () => {
         setIsModalOpen(true);
     };
 
-    const handleCancel = async(e,leave) =>{
+    const handleCancel = async (e, leave) => {
         e.preventDefault();
-        try{
-            leave = {...leave, employee_id: JSON.parse(localStorage.getItem("userData")).id};
-            console.log(leave);
-            const resp = await axios.post("http://localhost:8080/api/cancelLeave", leave);
-            console.log(resp.data);
-            setLeaveHistory(resp.data);
-        }
-        catch(e)
-        {
-            console.error(e);
+        try {
+            // NOTE: Ensure your backend knows how to handle this payload
+            const payload = { ...leave, employee_id: JSON.parse(localStorage.getItem("userData")).id };
+            const resp = await axios.post("http://localhost:8080/api/cancelLeave", payload);
+            
+            // To see the change immediately, we should update the state
+            // It's often best if the API returns the updated list or the updated single item
+            setLeaveHistory(prevHistory => 
+                prevHistory.map(item => 
+                    item.id === leave.id ? { ...item, status: 'CANCELLED' } : item
+                )
+            );
+        } catch (e) {
+            console.error("Failed to cancel leave:", e);
         }
     }
 
@@ -112,9 +169,8 @@ const LeaveManagementPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setFormError(''); // Reset error on new submission
+        setFormError('');
 
-        // --- 1. Validation ---
         if (!leaveType || !startDate || !endDate || !reason) {
             setFormError("All fields except attachment are required.");
             return;
@@ -123,19 +179,17 @@ const LeaveManagementPage = () => {
             setFormError("End date cannot be before the start date.");
             return;
         }
-        if (new Date(startDate) < new Date().setHours(0,0,0,0)) {
+        if (new Date(startDate) < new Date().setHours(0, 0, 0, 0)) {
             setFormError("Start date cannot be in the past.");
             return;
         }
         
-        // --- 2. Get Employee ID ---
         const employeeId = JSON.parse(localStorage.getItem("userData"))?.id;
         if (!employeeId) {
             setFormError("Could not identify employee. Please log in again.");
             return;
         }
 
-        // --- 3. Create FormData Payload ---
         const formData = new FormData();
         formData.append('employeeId', employeeId);
         formData.append('leaveType', leaveType);
@@ -146,16 +200,16 @@ const LeaveManagementPage = () => {
             formData.append('attachment', attachment);
         }
 
-        // --- 4. API Submission ---
         try {
-            const response = await axios.post('http://localhost:8080/api/leaves/apply', formData);
+            const response = await axios.post('http://localhost:8080/api/leaves/apply', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
 
-            // --- 5. Handle Success ---
             console.log("Leave request submitted successfully:", response.data);
             alert("Your leave request has been submitted!");
-            // Add new request to the top of the history list for immediate feedback
+            
             setLeaveHistory(prevHistory => [response.data, ...prevHistory]);
-            setIsModalOpen(false); // Close modal on success
+            setIsModalOpen(false);
 
         } catch (error) {
             console.error("Failed to submit leave request:", error);
@@ -195,15 +249,25 @@ const LeaveManagementPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200">
-                                {leaveHistory.map(leave => (
+                                {leaveHistory.length > 0 ? leaveHistory.map(leave => (
                                     <tr key={leave.id} className="hover:bg-slate-50">
                                         <td className="p-4 font-medium">{leave.leaveType}</td>
                                         <td className="p-4 text-slate-600">{leave.startDate} to {leave.endDate}</td>
                                         <td className="p-4 text-slate-600 truncate max-w-xs">{leave.reason}</td>
                                         <td className="p-4"><StatusBadge status={leave.status} /></td>
-                                        <td className="p-4"><button onClick={(e)=>handleCancel(e, leave)} className="text-slate-500 cursor-pointer hover:text-slate-800">Cancel</button></td>
+                                        <td className="p-4">
+                                            {leave.status === 'PENDING' && (
+                                                <button onClick={(e) => handleCancel(e, leave)} className="text-red-500 cursor-pointer hover:text-red-700 font-medium">
+                                                    Cancel
+                                                </button>
+                                            )}
+                                        </td>
                                     </tr>
-                                ))}
+                                )) : (
+                                    <tr>
+                                        <td colSpan="5" className="text-center p-8 text-slate-500">No leave history found.</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -219,8 +283,6 @@ const LeaveManagementPage = () => {
                             <option value="CASUAL">Casual Leave</option>
                             <option value="SICK">Sick Leave</option>
                             <option value="EARNED">Earned Leave</option>
-                            <option value="UNPAID">Unpaid Leave</option>
-                            <option value="COMP_OFF">Compensatory Off</option>
                         </select>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

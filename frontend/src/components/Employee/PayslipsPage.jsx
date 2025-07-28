@@ -107,7 +107,9 @@ const PayslipsPage = () => {
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPayslip, setSelectedPayslip] = useState(null);
-
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    const role = userData.role;
+    const id = userData.id;
     // Fetch data from your actual endpoint
     useEffect(() => {
         const fetchPayslips = async () => {
@@ -115,13 +117,34 @@ const PayslipsPage = () => {
             setError(null);
             try {
                 const response = await axios.get(`http://localhost:8080/api/fetchAllPayslips`);
+                console.log(response.data, role, id);
+                if(role === "Employee")
+                {
+                    const data = response.data.filter((emp)=>(emp.user.id === id));
+                    console.log(data);
+                    setRawPayslips(data);
+                    const transformedData = data.map(transformPayslipData).filter(Boolean);
+                    setUiPayslips(transformedData);
+                    setFilteredPayslips(transformedData);
+                }
+                else if(role === "Manager")
+                {
+                    const data = response.data.filter((emp)=>(emp.id === id));
+                    setRawPayslips(data);
+                    const transformedData = data.map(transformPayslipData).filter(Boolean);
+                    setUiPayslips(transformedData);
+                    setFilteredPayslips(transformedData);
+                }
+                else
+                {
+                    //setRawPayslips(response.data);
+                    const transformedData = data.map(transformPayslipData).filter(Boolean);
+                    setUiPayslips(transformedData);
+                    setFilteredPayslips(transformedData);
+                } 
                 
-                setRawPayslips(response.data);
                 
-                // Transform data and filter out any null results from malformed data
-                const transformedData = response.data.map(transformPayslipData).filter(Boolean);
-                setUiPayslips(transformedData);
-                setFilteredPayslips(transformedData);
+                
 
             } catch (err) {
                 setError("Failed to fetch payslips. Please try again later.");
@@ -176,7 +199,6 @@ const PayslipsPage = () => {
     return (
         <div className="bg-slate-100 min-h-screen">
             <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-                <h1 className="text-3xl font-bold text-slate-800 mb-8">My Payslips</h1>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     <SummaryCard 

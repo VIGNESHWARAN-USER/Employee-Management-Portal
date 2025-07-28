@@ -1,4 +1,3 @@
-// components/EmployeeDashboard.jsx
 import { useState } from 'react';
 import { Home, User, FileText, CalendarCheck2, LogOut, ClipboardList } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
@@ -7,6 +6,7 @@ import EmployeeProfile from '../Employee/EmployeeProfile';
 import PayslipsPage from '../Employee/PayslipsPage';
 import LeaveManagementPage from '../LeaveManagement/LeaveManagementPage';
 import { useNavigate } from 'react-router-dom';
+import PerformanceReviewPage from '../PerfomanceReview/PerformanceReviewPage';
 
 const employeeMenu = [
   { name: 'Dashboard', icon: <Home size={18} />, key: 'dashboard' },
@@ -27,7 +27,7 @@ const renderEmpContent = (key) => {
     case 'leaves':
       return <LeaveManagementPage/>;
     case 'performance':
-      return <div className="p-4">Performance Reviews</div>;
+      return <PerformanceReviewPage/>;
     default:
       return null;
   }
@@ -36,6 +36,7 @@ const renderEmpContent = (key) => {
 export default function EmployeeDashboard() {
   const [activeKey, setActiveKey] = useState('dashboard');
   const navigate = useNavigate();
+  const name = JSON.parse(localStorage.getItem("userData"))?.firstName+" "+JSON.parse(localStorage.getItem("userData"))?.lastName;
   return (
     <div className="flex h-screen bg-gray-50">
       <Toaster position="top-right" richColors />
@@ -72,7 +73,7 @@ export default function EmployeeDashboard() {
           <h1 className="text-xl font-semibold capitalize">{activeKey}</h1>
           <div className="flex items-center gap-3 text-gray-700">
             <img src={empimg} alt="Employee" className="w-8 h-8 rounded-full" />
-            <span className="font-bold">EMPLOYEE</span>
+            <span className="font-bold">{name}</span>
           </div>
         </header>
 

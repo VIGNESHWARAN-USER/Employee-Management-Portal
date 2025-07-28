@@ -143,7 +143,8 @@ const ManageEmployee = () => {
             toast.error("Please fill in all required fields.");
             return;
         }
-        const payload = { ...newEmployee, manager: newEmployee.manager ? { id: newEmployee.manager } : null };
+        const payload = { ...newEmployee, manager: newEmployee.manager ? newEmployee.manager  : null };
+        console.log(payload);
         const addPromise = axios.post("http://localhost:8080/api/addEmployee", payload);
         toast.promise(addPromise, {
             loading: 'Adding Employee...',

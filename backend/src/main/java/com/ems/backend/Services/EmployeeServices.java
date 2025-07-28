@@ -360,4 +360,13 @@ public class EmployeeServices {
     }
 
 
+    public ResponseEntity<?> fetManagerEmployees(Long managerId) {
+        try
+        {
+            return ResponseEntity.ok().body(employeeRepo.findByManagerId(managerId));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.internalServerError().body("Internal Server Error");
+        }
+    }
 }

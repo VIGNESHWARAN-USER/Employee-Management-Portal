@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, Users, Calendar, Wallet, ClipboardList, FileText, Settings } from 'lucide-react';
+import { Home, Users, Calendar, Wallet, ClipboardList, FileText, Settings, User } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import adminimg from "../../assets/admin.png";
 import ManageEmployee from '../EmployeeManagement/ManageEmployee';
@@ -7,20 +7,25 @@ import OnboardingAndExit from '../EmployeeManagement/OnboardingAndExit';
 import SalaryPayroll from '../Salary/SalaryPayroll';
 import SalarySetup from '../Salary/SalarySetup';
 import ManagerLeaveApprovalPage from '../LeaveManagement/ManagerLeaveApprovalPage';
+import ManagerReviewPage from '../PerfomanceReview/ManagerReviewPage';
+import EmployeeProfile from '../Employee/EmployeeProfile';
 
 const menuItems = [
   { name: 'Dashboard', icon: <Home size={18} />, key: 'dashboard' },
+  { name: 'Profile', icon: <User size={18} />, key: 'profile' },
   { name: 'Onboarding / Exit', icon: <ClipboardList size={18} />, key: 'onboarding' },
   { name: 'Salary Setup', icon: <Wallet size={18} />, key: 'salary' },
+  { name: 'Payslips', icon: <FileText size={18} />, key: 'payslips' },
   { name: 'Performance Reviews', icon: <ClipboardList size={18} />, key: 'performance' },
   { name: 'Manage Leave Requests', icon: <Calendar size={18} />, key: 'leaves' },
 ];
     const name = JSON.parse(localStorage.getItem("userData"))?.firstName+" "+JSON.parse(localStorage.getItem("userData"))?.lastName;
-    const pic  = JSON.parse(localStorage.getItem("userData")).profilePic;
 const renderContent = (key, onNavigate) => {
   switch (key) {
     case 'dashboard':
       return <div className="p-4">Welcome to Admin Dashboard 👋</div>;
+      case 'profile':
+      return <EmployeeProfile/>;
     case 'employees':
       return <ManageEmployee/>;
     case 'leaves':
@@ -30,7 +35,7 @@ const renderContent = (key, onNavigate) => {
     case 'payroll':
       return <SalaryPayroll/>;
     case 'performance':
-      return <div className="p-4">Performance Reviews</div>;
+      return <ManagerReviewPage/>;
     case 'onboarding':
       return <OnboardingAndExit onNavigate = {onNavigate}/>;
     default:
