@@ -14,7 +14,7 @@ import {
   Search,
   ArrowLeft,
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../api'
 
 // --- Helper Component: StatCard ---
 const StatCard = ({ icon, title, value, color }) => (
@@ -193,8 +193,8 @@ const SalaryPayroll = () => {
 
   useEffect(() => {
     const fetchAllData = () => {
-        const salaryPromise = axios.get("http://localhost:8080/api/fetchAllSalaryStructures");
-        const payslipPromise = axios.get("http://localhost:8080/api/fetchAllPayslips");
+        const salaryPromise = api.get("/api/fetchAllSalaryStructures");
+        const payslipPromise = api.get("/api/fetchAllPayslips");
 
         return Promise.all([salaryPromise, payslipPromise])
             .then(([salaryRes, payslipRes]) => {
@@ -234,7 +234,7 @@ const SalaryPayroll = () => {
           year: new Date().getFullYear(),
         }));
 
-        const response = await axios.post("http://localhost:8080/api/storePaySlips", newPayslipsPayload);
+        const response = await api.post("/api/storePaySlips", newPayslipsPayload);
         setPayslips(prev => [...response.data, ...prev].sort((a,b) => new Date(b.generatedOn) - new Date(a.generatedOn)));
         toast.success(`Payroll processed successfully for ${activeEmployees.length} employees!`);
       } catch (error) {

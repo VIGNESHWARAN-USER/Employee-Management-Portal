@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
+import api from '../../api'
 import { FileText, Calendar, Filter, X, Landmark, TrendingUp, Banknote, Wallet } from 'lucide-react';
 
 // --- Assuming these components are in the correct path ---
@@ -106,45 +107,21 @@ const PayslipsPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedPayslip, setSelectedPayslip] = useState(null);
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    const role = userData.role;
-    const id = userData.id;
+    const [selectedPayslip, setSelectedPayslip] = useState(null);   
+    const id = JSON.parse(localStorage.getItem("userData")).id;
     // Fetch data from your actual endpoint
     useEffect(() => {
         const fetchPayslips = async () => {
             setIsLoading(true);
             setError(null);
             try {
-                const response = await axios.get(`http://localhost:8080/api/fetchAllPayslips`);
-                console.log(response.data, role, id);
-                if(role === "Employee")
-                {
-                    const data = response.data.filter((emp)=>(emp.user.id === id));
-                    console.log(data);
-                    setRawPayslips(data);
-                    const transformedData = data.map(transformPayslipData).filter(Boolean);
-                    setUiPayslips(transformedData);
-                    setFilteredPayslips(transformedData);
-                }
-                else if(role === "Manager")
-                {
-                    const data = response.data.filter((emp)=>(emp.id === id));
-                    setRawPayslips(data);
-                    const transformedData = data.map(transformPayslipData).filter(Boolean);
-                    setUiPayslips(transformedData);
-                    setFilteredPayslips(transformedData);
-                }
-                else
-                {
-                    //setRawPayslips(response.data);
-                    const transformedData = data.map(transformPayslipData).filter(Boolean);
-                    setUiPayslips(transformedData);
-                    setFilteredPayslips(transformedData);
-                } 
-                
-                
-                
+                const response = await api.get(`/api/fetchAllPayslips`);
+                const data = response.data.filter((emp)=>(emp.user.id === id));
+                console.log(data);
+                setRawPayslips(data);
+                const transformedData = data.map(transformPayslipData).filter(Boolean);
+                setUiPayslips(transformedData);
+                setFilteredPayslips(transformedData);               
 
             } catch (err) {
                 setError("Failed to fetch payslips. Please try again later.");

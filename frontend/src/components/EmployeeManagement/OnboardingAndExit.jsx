@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../../api'
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { FaUsers, FaUserClock, FaArrowLeft, FaCheckCircle, FaHourglassHalf, FaClipboardList, FaUpload, FaEdit, FaSave } from 'react-icons/fa';
 import { toast } from 'sonner';
@@ -121,9 +121,10 @@ const OnboardingAndExit = ({onNavigate}) => {
     // --- FIX: Initial Data Fetching ---
     // This useCallback has an empty dependency array [], so it is created only ONCE.
     const fetchEmployeeData = useCallback(() => {
-        toast.promise(axios.get("http://localhost:8080/api/fetchAllUsers"), {
+        toast.promise(api.get("/api/fetchAllUsers"), {
             loading: 'Fetching employee data...',
             success: (response) => {
+                console.log(response.data)
                 if (Array.isArray(response.data)) {
                     setAllEmployees(response.data);
                 } else {
@@ -176,7 +177,7 @@ const OnboardingAndExit = ({onNavigate}) => {
     const handleTaskUpdate = (fieldName, fieldValue) => {
         const payload = { emailId:selectedEmployee.emailId, name: fieldName, value: fieldValue };
         console.log(payload)
-        const promise = axios.post(`http://localhost:8080/api/update-field`, payload)
+        const promise = api.post(`/api/update-field`, payload)
             .then(response => {
                 // The backend must return the updated employee object.
                 updateLocalEmployeeState(response.data);
@@ -195,7 +196,7 @@ const OnboardingAndExit = ({onNavigate}) => {
         formData.append('file', file);
         formData.append('id', selectedEmployee.emailId);
         
-        const promise = axios.post(`http://localhost:8080/api/uploadDocument`, formData, {
+        const promise = api.post(`/api/uploadDocument`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         }).then(response => {
             updateLocalEmployeeState(response.data);
@@ -215,7 +216,7 @@ const OnboardingAndExit = ({onNavigate}) => {
         }
 
         const newStatus = activeList === 'onboarding' ? 'Active' : 'Resigned';
-        const promise = axios.post(`http://localhost:8080/api/updatestatus`, { emailId: selectedEmployee.emailId,status: newStatus })
+        const promise = api.post(`/api/updatestatus`, { emailId: selectedEmployee.emailId,status: newStatus })
             .then(() => {
                 // Just remove the finalized user from the local list.
                 setAllEmployees(current => current.filter(emp => emp.id !== selectedEmployee.id));

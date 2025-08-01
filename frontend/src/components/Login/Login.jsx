@@ -1,6 +1,7 @@
 import {React, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // To redirect after login
-import axios from 'axios';
+
+import api from '../../api'
 import { Toaster, toast } from 'sonner'; // For toast notifications
 import { Mail, KeyRound, Eye, EyeOff } from 'lucide-react'; // For modern icons
 
@@ -14,11 +15,9 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (event) => {
-    event.preventDefault(); // Prevent default form submission
-    setIsLoading(true); // Disable button and show loading state
-
-    // Promise for the toast notification
-    const loginPromise = axios.post("http://localhost:8080/api/login", { email, password });
+    event.preventDefault();
+    
+    const loginPromise = api.post("/auth/login", { username: email, password:password });
 
     toast.promise(loginPromise, {
       loading: 'Logging in...',
@@ -28,10 +27,10 @@ const Login = () => {
           // Manually throw to enter the catch block for custom error toasts
           throw new Error(response.data || "Invalid Password");
         }
-        
-        // Handle successful login (200 OK)
-        const userData = response.data;
-        const role = response.data.role;
+        console.log(response.data);
+        localStorage.setItem("token", response.data.token);
+        const userData = response.data.userDetails;
+        const role = response.data.userDetails.role;
         localStorage.setItem("userData", JSON.stringify(userData));
         
         if(role === "Admin") setTimeout(() => navigate('/admindashboard'), 1000); 

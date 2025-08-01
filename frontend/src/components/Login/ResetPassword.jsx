@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import api from '../../api'
 import { Toaster, toast } from 'sonner';
 import { KeyRound, Eye, EyeOff } from 'lucide-react';
 import loginimg from '../../assets/login.jpg';
@@ -30,7 +31,7 @@ const ResetPassword = () => {
     setIsLoading(true);
 
     // --- Replace with your actual API endpoint ---
-    const resetPromise = axios.post("http://localhost:8080/api/reset-password", { email, password });
+    const resetPromise = api.post("/api/reset-password", { email, password });
 
     toast.promise(resetPromise, {
       loading: 'Resetting password...',

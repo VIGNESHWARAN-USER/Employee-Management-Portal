@@ -18,6 +18,7 @@ public class LeaveDTO {
     private String reason;
     private String emailId;
     private String name;
+    private Long manager_id;
     private byte[] attachment;
 
     public LeaveDTO(Leave leave) {
@@ -31,5 +32,6 @@ public class LeaveDTO {
         this.reason = leave.getReason();
         this.emailId = leave.getEmployee().getEmailId();
         this.name=  leave.getEmployee().getFirstName()+" "+leave.getEmployee().getLastName();
+        this.manager_id = leave.getEmployee().getManager().getId();
     }
 }

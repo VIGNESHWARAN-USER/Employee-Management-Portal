@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from '../../api'
 import CustomModal from '../Employee/CustomModal'; // Ensure this path is correct
 import { CalendarDays, Plane, HeartPulse, MoreHorizontal, FilePlus, Send, CircleHelp, CircleX, CircleCheck } from 'lucide-react';
 
@@ -88,7 +89,7 @@ const LeaveManagementPage = () => {
                     return;
                 }
 
-                const response = await axios.get(`http://localhost:8080/api/leaves/history/${employeeId}`);
+                const response = await api.get(`/api/leaves/history/${employeeId}`);
                 const history = response.data;
                 setLeaveHistory(history);
 
@@ -149,7 +150,7 @@ const LeaveManagementPage = () => {
         try {
             // NOTE: Ensure your backend knows how to handle this payload
             const payload = { ...leave, employee_id: JSON.parse(localStorage.getItem("userData")).id };
-            const resp = await axios.post("http://localhost:8080/api/cancelLeave", payload);
+            const resp = await api.post("/api/cancelLeave", payload);
             
             // To see the change immediately, we should update the state
             // It's often best if the API returns the updated list or the updated single item
@@ -201,7 +202,7 @@ const LeaveManagementPage = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:8080/api/leaves/apply', formData, {
+            const response = await api.post('/api/leaves/apply', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 

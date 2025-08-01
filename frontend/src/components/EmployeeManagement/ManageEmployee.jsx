@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../../api'
 import React, { useEffect, useMemo, useState } from 'react';
 import { FaPlus } from "react-icons/fa";
 import { HiOutlinePencilAlt, HiOutlineTrash, HiOutlineEye } from 'react-icons/hi';
@@ -59,7 +59,7 @@ const ManageEmployee = () => {
 
     // --- Data Fetching ---
     const fetchDetails = () => {
-        const fetchPromise = axios.get("http://localhost:8080/api/fetchAllUsers")
+        const fetchPromise = api.get("/api/fetchAllUsers")
             .then(response => {
                 setUserData(response.data);
                 const managerList = response.data
@@ -145,7 +145,7 @@ const ManageEmployee = () => {
         }
         const payload = { ...newEmployee, manager: newEmployee.manager ? newEmployee.manager  : null };
         console.log(payload);
-        const addPromise = axios.post("http://localhost:8080/api/addEmployee", payload);
+        const addPromise = api.post("/api/addEmployee", payload);
         toast.promise(addPromise, {
             loading: 'Adding Employee...',
             success: (response) => {
@@ -164,7 +164,7 @@ const ManageEmployee = () => {
         e.preventDefault();
         toast.info( "This will start the exit process for the employee.", {
             action: { label: "Confirm", onClick: () => {
-                const deletePromise = axios.post("http://localhost:8080/api/deleteEmployee", { id: employeeId });
+                const deletePromise = api.post("/api/deleteEmployee", { id: employeeId });
                 toast.promise(deletePromise, {
                     loading: 'Moving employee to exiting process...',
                     success: () => { fetchDetails(); return 'Employee exit process has been initiated.'; },
@@ -178,7 +178,7 @@ const ManageEmployee = () => {
     const handleUpdate = (e) => {
         e.preventDefault();
         const payload = { ...editingEmployee, manager: editingEmployee.manager ? { id: editingEmployee.manager } : null };
-        const updatePromise = axios.post("http://localhost:8080/api/updateEmployee", payload);
+        const updatePromise = api.post("/api/updateEmployee", payload);
         toast.promise(updatePromise, {
             loading: 'Updating employee details...',
             success: () => { fetchDetails(); closeEditModal(); return 'Employee details updated successfully!'; },
@@ -212,7 +212,7 @@ const ManageEmployee = () => {
                     </select>
                 
                     <button onClick={openAddModal} className="flex items-center bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg">
-                        <FaPlus className="mr-2" /> Add Employee
+                        <FaPlus className="mr-2" /> Add 
                     </button>
                 </div>
 

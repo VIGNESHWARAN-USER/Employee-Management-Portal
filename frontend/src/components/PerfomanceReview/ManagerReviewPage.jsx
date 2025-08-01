@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
+import api from '../../api'
 import { Edit, UserCheck, Users, Clock, CheckCircle, Send, Save } from 'lucide-react';
 
 // --- Helper Components ---
@@ -178,7 +179,7 @@ const ManagerReviewPage = () => {
                 }
                 
                 // Fetch direct reports
-                const empResponse = await axios.get(`http://localhost:8080/api/employees/manager/${managerId}`);
+                const empResponse = await api.get(`/api/employees/manager/${managerId}`);
                 const employeesData = empResponse.data;
 
                 // For each employee, fetch their latest review to determine status
@@ -187,7 +188,7 @@ const ManagerReviewPage = () => {
                     employeesData.map(async (emp) => {
                         try {
                             // This endpoint should ideally get the *latest* review status
-                            const reviewRes = await axios.get(`http://localhost:8080/api/performance-reviews/employee/${emp.id}/latest`);
+                            const reviewRes = await api.get(`/api/performance-reviews/employee/${emp.id}/latest`);
                             console.log(reviewRes.data)
                             // Assuming the latest review determines the status for the current cycle
                             return { ...emp, reviewStatus: reviewRes.data.status || 'PENDING', reviewId:reviewRes.data.reviewId  };
@@ -210,7 +211,6 @@ const ManagerReviewPage = () => {
     }, []);
     
     const handleStartReview = (employee) => {
-        console.log("Hi", employee)
         setSelectedEmployee(employee);
         setIsModalOpen(true);
     };
@@ -218,7 +218,7 @@ const ManagerReviewPage = () => {
     const handleReviewSubmit = async (reviewData) => {
         // This function is passed to the modal
         console.log("Submitting review:", reviewData);
-        const response = await axios.post('http://localhost:8080/api/performance-reviews', reviewData);
+        const response = await api.post('/api/performance-reviews', reviewData);
         
         // Update the employee's status in the UI without a full reload
         setEmployees(prev => prev.map(emp => 
@@ -233,8 +233,7 @@ const ManagerReviewPage = () => {
     return (
         <div className="bg-slate-100 min-h-screen">
             <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-                <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-slate-800">Team Performance Reviews</h1>
+                <div className="flex flex-col sm:flex-row justify-between items-center">
                 </div>
 
                 {/* Filter Tabs */}
@@ -244,6 +243,9 @@ const ManagerReviewPage = () => {
                     </button>
                     <button onClick={() => setFilter('COMPLETED')} className={`px-4 py-2 text-lg font-semibold flex items-center gap-2 ${filter === 'COMPLETED' ? 'text-sky-600 border-b-2 border-sky-600' : 'text-slate-500'}`}>
                         <UserCheck size={20}/> Completed
+                    </button>
+                    <button onClick={() => setFilter('ACKNOWLEDGED')} className={`px-4 py-2 text-lg font-semibold flex items-center gap-2 ${filter === 'ACKNOWLEDGED' ? 'text-sky-600 border-b-2 border-sky-600' : 'text-slate-500'}`}>
+                        <UserCheck size={20}/> Acknowledged
                     </button>
                 </div>
 

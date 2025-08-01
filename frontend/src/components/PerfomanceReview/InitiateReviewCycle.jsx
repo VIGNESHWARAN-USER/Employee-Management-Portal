@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from '../../api'
 import { Rocket, User, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
 
 const InitiateReviewCycle = () => {
@@ -20,7 +21,7 @@ const InitiateReviewCycle = () => {
         const fetchEmployees = async () => {
             try {
                 // This endpoint should return a list of all employees
-                const response = await axios.get('http://localhost:8080/api/fetchAllUsers');
+                const response = await api.get('/api/fetchAllUsers');
                 setEmployees(response.data);
             } catch (err) {
                 setError('Failed to fetch employee list.');
@@ -89,7 +90,7 @@ const InitiateReviewCycle = () => {
                 employeeIds: selectedEmployees,
             };
             console.log(payload);
-            const response = await axios.post('http://localhost:8080/api/reviews/start-cycle', payload);
+            const response = await api.post('/api/reviews/start-cycle', payload);
             setSuccessMessage(response.data.message || 'Review cycle initiated successfully!');
             // Clear selections after successful launch
             setSelectedEmployees([]);

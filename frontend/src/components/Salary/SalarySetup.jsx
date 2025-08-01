@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../../api'
 import React, { useState, useEffect, useMemo } from 'react';
 import { FaCalculator, FaRegSave } from 'react-icons/fa';
 import { HiOutlineUserCircle } from "react-icons/hi";
@@ -29,8 +29,8 @@ const SalarySetup = () => {
 
     // --- Data Fetching ---
     useEffect(() => {
-        const fetchEmployees = axios.get("http://localhost:8080/api/fetchAllUsers");
-        const fetchSalaries = axios.get("http://localhost:8080/api/fetchAllSalaryStructures");
+        const fetchEmployees = api.get("/api/fetchAllUsers");
+        const fetchSalaries = api.get("/api/fetchAllSalaryStructures");
 
         setIsFetching(true);
         toast.promise(Promise.all([fetchEmployees, fetchSalaries]), {
@@ -157,7 +157,7 @@ const SalarySetup = () => {
             ctc: calculations.ctc,
         };
 
-        const savePromise = axios.post("http://localhost:8080/api/submitStructure", payload);
+        const savePromise = api.post("/api/submitStructure", payload);
         
         toast.promise(savePromise, {
             loading: `Saving salary structure for ${selectedEmployeeData.firstName}...`,

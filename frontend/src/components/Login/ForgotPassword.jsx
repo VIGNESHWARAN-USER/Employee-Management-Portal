@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import api from '../../api'
 import { Toaster, toast } from 'sonner';
 import { Mail, ArrowRight } from 'lucide-react';
 import loginimg from '../../assets/login.jpg'; // Adjust path if needed
@@ -15,7 +16,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
 
     // --- Replace with your actual API endpoint ---
-    const sendOtpPromise = axios.post("http://localhost:8080/api/forgot-password", { email });
+    const sendOtpPromise = api.post("/api/forgot-password", { email });
 
     toast.promise(sendOtpPromise, {
       loading: 'Sending OTP...',

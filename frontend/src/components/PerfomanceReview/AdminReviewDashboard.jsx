@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
+import api from '../../api'
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Users, CheckSquare, Clock, Search, Eye } from 'lucide-react'; // Removed unused Bell, Radar
@@ -50,7 +51,7 @@ const AdminReviewDashboard = () => {
         const fetchAdminData = async () => {
             setLoading(true);
             try {
-                const reviewsResponse = await axios.get('http://localhost:8080/api/all-reviews');
+                const reviewsResponse = await api.get('/api/all-reviews');
                 setAllReviews(reviewsResponse.data);
                 
                 const reviews = reviewsResponse.data;

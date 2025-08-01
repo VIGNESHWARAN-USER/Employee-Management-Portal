@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api'
 import {
     Mail, Phone, Briefcase, DollarSign, CheckCircle, XCircle, Camera, Users
 } from 'lucide-react';
@@ -7,6 +7,7 @@ import {
 // Import React Bootstrap components
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+
 
 // --- Reusable Components ---
 const InfoItem = ({ label, value }) => (
@@ -77,18 +78,18 @@ const EmployeeProfile = () => {
 
         const fetchImage = async (url, setImageState) => {
             try {
-                const response = await axios.get(url, { responseType: 'arraybuffer' });
+                const response = await api.get(url, { responseType: 'arraybuffer' });
                 const mimeType = response.headers['content-type'];
                 const base64 = btoa(new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), ''));
                 setImageState(`data:${mimeType};base64,${base64}`);
-            } catch (error) {
+            } catch (error) {   
                 console.error(`Failed to load image from ${url}`, error);
                 setImageState(null); // Set to null on error
             }
         };
 
-        fetchImage(`http://localhost:8080/api/getProfilePic/${employeeData.id}`, setProfileImage);
-        fetchImage(`http://localhost:8080/api/getAadhaarPan/${employeeData.id}`, setAadhaarPanImage); // Assuming this endpoint exists
+        fetchImage(`/api/getProfilePic/${employeeData.id}`, setProfileImage);
+        fetchImage(`/api/getAadhaarPan/${employeeData.id}`, setAadhaarPanImage); // Assuming this endpoint exists
 
     }, [employeeData?.id]);
 
@@ -103,7 +104,7 @@ const EmployeeProfile = () => {
         formData.append('file', file);
 
         try {
-            await axios.post(`http://localhost:8080/api/setProfilePic/${employeeData.id}`, formData, {
+            await api.post(`/api/setProfilePic/${employeeData.id}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
             console.log("Profile picture updated successfully.");
@@ -179,7 +180,13 @@ const EmployeeProfile = () => {
 
                     {employeeData.employees?.length > 0 && (
                         <SectionCard icon={<Users />} title="Direct Reports">
-                            {/* ... same as before ... */}
+                            {employeeData.employees.map((emp, key)=>(
+                                <div className="space-y-1">
+                                <h3 className="font-semibold text-slate-700">{"Employee No."+" "+ emp.id}</h3>
+                                <p>Name: {emp.firstName+" "+emp.lastName}</p>
+                                <p>Email ID: {emp.officialEmail}</p>
+                            </div>
+                            ))}
                         </SectionCard>
                     )}
                 </div>

@@ -1,11 +1,16 @@
 package com.ems.backend.Models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -15,7 +20,7 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "employee")
-public class Employee {
+public class Employee implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,32 +28,22 @@ public class Employee {
 
     private String firstName;
     private String lastName;
-
     private String mobileNumber;
     private String alternateMobileNumber;
-
     private String status;
     private String password;
-
     @Temporal(TemporalType.DATE)
     private Date dateOfJoining;
-
     private BigDecimal salary;
     private String emailId;
     private String role;
-
-    // Onboarding
     @Lob
     private byte[] aadhaarPan;
-
     @Lob
     private byte[] profilePic;
-
     private String officialEmail;
-
     @Temporal(TemporalType.DATE)
     private Date orientationDate;
-
     private boolean laptopAssigned;
     private boolean knowledgeTransfer;
     private boolean idReturned;
@@ -66,9 +61,66 @@ public class Employee {
     @JsonBackReference(value = "manager-ref")
     private Employee manager;
 
+
     @OneToMany(mappedBy = "manager")
     @JsonManagedReference(value = "manager-ref")
     private List<Employee> employees;
+
+    @Override
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(this.role));
+    }
+
+    /**
+     * This tells Spring Security where to find the user's password.
+     * It is CRITICAL to ignore this for JSON to prevent ever sending
+     * the hashed password to the client.
+     */
+    @Override
+    @JsonIgnore
+    public String getPassword() {
+        return this.password;
+    }
+
+    /**
+     * This tells Spring Security that the "username" for login
+     * is the officialEmail field.
+     */
+    @Override
+    public String getUsername() {
+        return this.officialEmail;
+    }
+
+    /**
+     * The following methods are also part of the UserDetails contract.
+     * We will ignore them for JSON conversion and return true by default.
+     * In a more complex app, these could be tied to database columns.
+     */
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isEnabled() {
+        return true;
+    }
+
 
     @Override
     public String toString() {
@@ -79,7 +131,6 @@ public class Employee {
                 ", mobileNumber='" + mobileNumber + '\'' +
                 ", alternateMobileNumber='" + alternateMobileNumber + '\'' +
                 ", status='" + status + '\'' +
-                ", password='" + password + '\'' +
                 ", dateOfJoining=" + dateOfJoining +
                 ", salary=" + salary +
                 ", emailId='" + emailId + '\'' +

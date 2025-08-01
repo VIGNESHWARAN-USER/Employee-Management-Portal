@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from '../../api'
 import { Check, X, Clock, Calendar, User, MessageSquare, AlertTriangle } from 'lucide-react';
 import ConfirmationModal from './ComfirmationPage'; // Adjust path as needed
 
@@ -44,15 +45,22 @@ const ManagerLeaveApprovalPage = () => {
     const [remarks, setRemarks] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true); // Added loading state for better UX
-
+    const role = JSON.parse(localStorage.getItem("userData")).role;
+    const id = JSON.parse(localStorage.getItem("userData")).id;
+    
     useEffect(() => {
         // FIX 2: Correctly handle async operations inside useEffect.
         const fetchLeaveRequests = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/api/leaves/allRequests`);
+                const response = await api.get(`/api/leaves/allRequests`);
                 const data = response.data;
-                
-                setLeaveRequests(data);
+                console.log(data);
+                if(role === "Manager")
+                {
+                    const data = response.data.filter((emp)=>(emp.manager_id === id))
+                    setLeaveRequests(data);
+                }
+                else setLeaveRequests(data);
 
                 // Calculate stats based on the fetched data directly
                 const pending = data.filter(r => r.status === 'PENDING').length;
@@ -94,7 +102,7 @@ const ManagerLeaveApprovalPage = () => {
         }
 
         try {
-            const response = await axios.post(`http://localhost:8080/api/leaves/${selectedRequest.id}/${actionType}`);
+            const response = await api.post(`/api/leaves/${selectedRequest.id}/${actionType}`);
             
             // Update UI and stats after successful action
             const updatedRequests = leaveRequests.map(req =>

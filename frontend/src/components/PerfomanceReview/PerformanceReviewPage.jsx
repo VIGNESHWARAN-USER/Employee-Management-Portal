@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from '../../api'
 import { Award, ChevronRight, BarChart2, CheckCircle, Clock } from 'lucide-react';
 import {
   Chart as ChartJS,
@@ -47,7 +48,7 @@ const ReviewDetailModal = ({ review, isOpen, onClose,fetchReviews }) => {
     const handleAcknowledge = async(e, review) =>{
         e.preventDefault();
         try{
-            const response = await axios.post("http://localhost:8080/api/acknowledgeReview", review)
+            const response = await api.post("/api/acknowledgeReview", review)
             console.log(response.data);
             fetchReviews();
             onClose();
@@ -175,7 +176,7 @@ const PerformanceReviewPage = () => {
                      return;
                 }
                 // Use your actual API endpoint
-                const response = await axios.get(`http://localhost:8080/api/performance-reviews/employee/${employeeId}`);
+                const response = await api.get(`/api/performance-reviews/employee/${employeeId}`);
                 
                 const sortedReviews = response.data.sort((a, b) => new Date(b.reviewPeriodEnd) - new Date(a.reviewPeriodEnd));
                 

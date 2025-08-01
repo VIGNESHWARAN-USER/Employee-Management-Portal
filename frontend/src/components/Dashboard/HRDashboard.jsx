@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { Home, Users, Calendar, Wallet, ClipboardList, FileText, Settings, User } from 'lucide-react';
-import { Toaster, toast } from 'sonner';
+import { Home, User, Calendar, Wallet, ClipboardList, FileText } from 'lucide-react';
+import { Toaster } from 'sonner';
 import adminimg from "../../assets/admin.png";
-import ManageEmployee from '../EmployeeManagement/ManageEmployee';
 import OnboardingAndExit from '../EmployeeManagement/OnboardingAndExit';
 import SalaryPayroll from '../Salary/SalaryPayroll';
 import SalarySetup from '../Salary/SalarySetup';
 import ManagerLeaveApprovalPage from '../LeaveManagement/ManagerLeaveApprovalPage';
 import AdminReviewDashboard from '../PerfomanceReview/AdminReviewDashboard';
 import EmployeeProfile from '../Employee/EmployeeProfile';
+import Sidebar from './Sidebar'; // Assuming Sidebar.jsx is in the same directory
+import { useNavigate } from 'react-router-dom';
 
 const menuItems = [
-  { name: 'Dashboard', icon: <Home size={18} />, key: 'dashboard' },
   { name: 'Profile', icon: <User size={18} />, key: 'profile' },
   { name: 'Onboarding / Exit', icon: <ClipboardList size={18} />, key: 'onboarding' },
   { name: 'Salary Setup', icon: <Wallet size={18} />, key: 'salary' },
@@ -20,59 +20,48 @@ const menuItems = [
   { name: 'Manage Leave Requests', icon: <Calendar size={18} />, key: 'leaves' },
 ];
 
-
-
 const renderContent = (key, onNavigate) => {
   switch (key) {
-    case 'dashboard':
-      return <div className="p-4">Welcome to Admin Dashboard 👋</div>;
-      case 'profile':
-      return <EmployeeProfile/>;
-    case 'employees':
-      return <ManageEmployee/>;
+    case 'profile':
+      return <EmployeeProfile />;
     case 'leaves':
-      return <ManagerLeaveApprovalPage/>;
+      return <ManagerLeaveApprovalPage />;
     case 'salary':
-      return <SalarySetup/>;
+      return <SalarySetup />;
     case 'payroll':
-      return <SalaryPayroll/>;
+      return <SalaryPayroll />;
     case 'performance':
-      return <AdminReviewDashboard/>;
+      return <AdminReviewDashboard />;
     case 'onboarding':
-      return <OnboardingAndExit onNavigate = {onNavigate}/>;
+      return <OnboardingAndExit onNavigate={onNavigate} />;
     default:
       return null;
   }
 };
 
 export default function HRDashboard() {
-  const [activeKey, setActiveKey] = useState('dashboard');
-  const name = JSON.parse(localStorage.getItem("userData"))?.firstName+" "+JSON.parse(localStorage.getItem("userData"))?.lastName;
+  const navigate = useNavigate();
+  useEffect(()=>{
+    const userData = JSON.parse(localStorage.getItem("userData"))
+    if(userData == null)
+    {
+        navigate("../login");
+    }
+  }, [])
+  const [activeKey, setActiveKey] = useState('profile');
+  const name = JSON.parse(localStorage.getItem("userData"))?.firstName + " " + JSON.parse(localStorage.getItem("userData"))?.lastName;
   const handleMenuClick = (key) => {
     setActiveKey(key);
   };
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Toaster richColors position="top-right" />
-
-      
-      <aside className="w-64 bg-white shadow-md">
-        <div className="p-5 font-bold text-center text-xl">EMS Admin</div>
-        <nav className="p-2 mt-2 space-y-5">
-          {menuItems.map(({ name, icon, key }) => (
-            <button
-              key={key}
-              onClick={() => handleMenuClick(key)}
-              className={`flex items-center gap-2 w-full text-left p-2 rounded-lg hover:bg-green-100 transition ${activeKey === key ? 'bg-green-200 font-semibold' : ''}`}
-            >
-              {icon}
-              {name}
-            </button>
-          ))}
-        </nav>
-        <button className='w-42 px-4 py-2 rounded-lg text-white font-bold cursor-pointer mx-8 absolute bottom-10 bg-red-500 items-center'>Logout</button>
-      </aside>
+      <Sidebar
+        menuItems={menuItems}
+        activeKey={activeKey}
+        onMenuClick={handleMenuClick}
+        userType="HR"
+      />
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
